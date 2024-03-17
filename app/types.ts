@@ -82,3 +82,6 @@ export interface StripeAPI{
     secret: string;
     id: string;
 }
+
+export interface PG {
+}

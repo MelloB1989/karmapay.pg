@@ -1,25 +1,28 @@
-import { createClient } from "redis";
+import { Redis } from "@upstash/redis"
 import dotenv from 'dotenv';
-import { OrderDetails, RazorpayAPI, RazorpayOrder, PhonepeAPI, PhonepeOrder, StripeAPI, StripeOrder } from "@/app/types";
+import { OrderDetails, RazorpayAPI, RazorpayOrder, PhonepeAPI, PhonepeOrder, StripeAPI, StripeOrder, PG } from "@/app/types";
 dotenv.config();
 import { createRazorpayOrder } from '@/lib/razorpay/create_order';
 import { createPhonepeOrder } from '@/lib/phonepe/create_order';
 import { createPrice } from '@/lib/stripe/create_price';
 import { createCheckoutSession } from '@/lib/stripe/create_checkout_session';
+import Register from "./register_customer";
 
-interface Params {
-    order_id: string;
+interface PageProps {
+    params: {
+      order_id: string;
+    };
   }
-
-const client = createClient ({
-    url : process.env.REDIS_ENDPOINT //|| env.REDIS_ENDPOINT,
+if(!process.env.UPSTASH_URL || !process.env.UPSTASH_TOKEN){
+    throw new Error("No Upstash URL or token provided");
+}
+const client = new Redis({
+    url: process.env.UPSTASH_URL,
+    token: process.env.UPSTASH_TOKEN
   });
-  
-  client.on("error", function(err) {
-      throw err;
-  });
 
-export default async function PaymentPage({ order_id }: Params){
+export default async function PaymentPage({ params }: PageProps){
+    const { order_id } = params;
     let orderDetails: OrderDetails = {
         PGorder: "",
         api_key: "",
@@ -39,16 +42,14 @@ export default async function PaymentPage({ order_id }: Params){
         webhook_url: "",
     };
     let makeC = true;
-    let PGorder = {}
+    let PGorder: PhonepeOrder | RazorpayOrder | StripeOrder | PG = {};
     let paymentUrl = "";
-    client.connect();
     //Fetch orderDetails from redis and parse it
-    const result = await client.get(order_id);
-    if (result !== null) {
-        orderDetails = JSON.parse(result);
-    } else {
-        throw new Error(`No order found with id: ${order_id}`);
+    if(order_id === undefined){
+        throw new Error("No order_id provided");
     }
+    const result: any = await client.get(order_id.toString());
+    orderDetails = result;
 
     if(orderDetails.order_status === "PENDING"){
         switch (orderDetails.order_mode){
@@ -118,5 +119,9 @@ export default async function PaymentPage({ order_id }: Params){
                 break;
         }
     }
+
+    return(
+        <Register makeC={makeC} PGorder={PGorder} orderDetails={orderDetails} />
+    )
 
 }
