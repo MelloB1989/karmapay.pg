@@ -6,7 +6,7 @@ import { createRazorpayOrder } from '@/lib/razorpay/create_order';
 import { createPhonepeOrder } from '@/lib/phonepe/create_order';
 import { createPrice } from '@/lib/stripe/create_price';
 import { createCheckoutSession } from '@/lib/stripe/create_checkout_session';
-import Register from "./register_customer";
+import Register from "./register";
 
 interface PageProps {
     params: {

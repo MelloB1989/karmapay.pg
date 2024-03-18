@@ -2,6 +2,7 @@
 import { Providers } from '@/provider'
 import { useState, useEffect } from 'react';
 import toast, {Toaster} from 'react-hot-toast';
+import Popup from './Popup';
 import axios from 'axios';
 import { OrderDetails, PhonepeOrder, RazorpayOrder, StripeOrder, PG } from '@/app/types';
 import {
@@ -19,7 +20,8 @@ import {
     Center,
     useColorModeValue,
     Image,
-  } from '@chakra-ui/react'
+    Spinner
+  } from '@chakra-ui/react';
 
   const Blur = (props: IconProps) => {
     return (
@@ -101,6 +103,20 @@ import {
     )
   }
 
+  function loadScript(src: string) {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+      document.body.appendChild(script);
+    });
+  }
+
 export default function Register({makeC, PGorder, orderDetails}: {makeC: any, PGorder: PhonepeOrder | RazorpayOrder | StripeOrder | PG, orderDetails: OrderDetails}){
     const [fname, setFName] = useState("");
     const [lname, setLName] = useState("");
@@ -117,19 +133,24 @@ export default function Register({makeC, PGorder, orderDetails}: {makeC: any, PG
 
     //Check if cid cookie exists
     useEffect(() => {
-        if(!(orderDetails.order_mode === "STRIPE") && 'url' in PGorder) window.location.href = PGorder.url;
+      console.log(orderDetails.registration)
+        if((orderDetails.order_mode === "STRIPE") && 'url' in PGorder) setMakeC("stripe");//window.location.href = PGorder.url;
         const cookies = document.cookie.split("; ");
         let _cid = "";
         cookies.forEach((cookie) => {
           const [key, value] = cookie.split("=");
           if(key === "cid") _cid = value;
         });
-        if(_cid !== ""){ 
+        if(_cid !== "" && orderDetails.order_mode !== "STRIPE"){ 
           setMakeC("pay");
           setCID(_cid);
         }
-        if(orderDetails.registration === "no") setMakeC("pay");
+        if(orderDetails.registration === "no" && orderDetails.order_mode !== "STRIPE") setMakeC("pay");
       }, []);
+
+      useEffect(()=>{
+        console.log(makec);
+      }, [makec]);
 
     const handleCRegister = async () => {
         if(!lname || !fname || !email || !phone)
@@ -193,7 +214,7 @@ export default function Register({makeC, PGorder, orderDetails}: {makeC: any, PG
           </Stack>
           
           {
-            makec === "pay" ? (<PaymentProgress amount={orderDetails.order_amt.toString()} />) : (
+            makec === "pay" ? (<PaymentProgress amount={orderDetails.order_amt.toString()} />) :  makec === "register" ? (
                 <Stack
             bg={'gray.50'}
             rounded={'xl'}
@@ -259,7 +280,7 @@ export default function Register({makeC, PGorder, orderDetails}: {makeC: any, PG
             </Box>
             form
           </Stack>
-            )
+            ) : makec === "stripe" ? (<Popup url={'url' in PGorder ? PGorder.url : "/"} />) : (<Spinner size='xl' thickness="8px"/>)
           }
 
         </Container>
