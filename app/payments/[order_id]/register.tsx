@@ -371,7 +371,7 @@ export default function Register({makeC, PGorder, orderDetails, PGRapi, order_id
             </Box>
             form
           </Stack>
-            ) : makec === "stripe" || makec === "phonepe" ? (<Popup url={'url' in PGorder ? PGorder.url : "/"} change_status={status_success} />) : (<Spinner size='xl' thickness="8px"/>)
+            ) : makec === "stripe" || makec === "phonepe" ? (<Popup url={'url' in PGorder ? PGorder.url : "/"} change_status={status_success} amount={orderDetails.order_amt}/>) : (<Spinner size='xl' thickness="8px"/>)
           }
 
         </Container>
