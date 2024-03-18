@@ -23,6 +23,11 @@ const client = new Redis({
 
 export default async function PaymentPage({ params }: PageProps){
     const { order_id } = params;
+    let PGRazorpayapi : RazorpayAPI = {
+        key: "",
+        secret: "",
+        id: ""
+    };
     let orderDetails: OrderDetails = {
         PGorder: "",
         api_key: "",
@@ -55,6 +60,7 @@ export default async function PaymentPage({ params }: PageProps){
         switch (orderDetails.order_mode){
             case "RAZORPAY":
                 let PGRapi: RazorpayAPI = JSON.parse(Buffer.from(orderDetails.api_key.substring(3), 'base64').toString('ascii'));
+                PGRazorpayapi = PGRapi;
                 //Create a Razorpay order
                 const razorpayOrder = await createRazorpayOrder(PGRapi.key, PGRapi.secret, orderDetails.order_amt, order_id, orderDetails.order_description);
                 let PGO: RazorpayOrder = razorpayOrder;
@@ -121,7 +127,7 @@ export default async function PaymentPage({ params }: PageProps){
     }
 
     return(
-        <Register makeC={makeC} PGorder={PGorder} orderDetails={orderDetails} />
+        <Register makeC={makeC} PGorder={PGorder} orderDetails={orderDetails} PGRapi={PGRazorpayapi} order_id={order_id} />
     )
 
 }

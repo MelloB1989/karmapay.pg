@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import toast, {Toaster} from 'react-hot-toast';
 import Popup from './Popup';
 import axios from 'axios';
-import { OrderDetails, PhonepeOrder, RazorpayOrder, StripeOrder, PG } from '@/app/types';
+import { OrderDetails, PhonepeOrder, RazorpayOrder, StripeOrder, PG, RazorpayAPI } from '@/app/types';
 import {
     Box,
     Stack,
@@ -22,6 +22,12 @@ import {
     Image,
     Spinner
   } from '@chakra-ui/react';
+
+  declare global {
+    interface Window {
+      Razorpay: any;
+    }
+  }
 
   const Blur = (props: IconProps) => {
     return (
@@ -117,7 +123,7 @@ import {
     });
   }
 
-export default function Register({makeC, PGorder, orderDetails}: {makeC: any, PGorder: PhonepeOrder | RazorpayOrder | StripeOrder | PG, orderDetails: OrderDetails}){
+export default function Register({makeC, PGorder, orderDetails, PGRapi, order_id}: {makeC: any, PGorder: PhonepeOrder | RazorpayOrder | StripeOrder | PG, orderDetails: OrderDetails, PGRapi: RazorpayAPI, order_id: string }){
     const [fname, setFName] = useState("");
     const [lname, setLName] = useState("");
     const [email, setEmail] = useState("");
@@ -126,7 +132,6 @@ export default function Register({makeC, PGorder, orderDetails}: {makeC: any, PG
     const [makec, setMakeC] = useState(makeC ? "make" : "pay");
     const [cid, setCID] = useState("");
     const [status, setStatus] = useState("");
-    const [paymentg, setPaymentG] = useState("");
 
     const status_success = () => {
       setStatus("success");
@@ -140,26 +145,103 @@ export default function Register({makeC, PGorder, orderDetails}: {makeC: any, PG
     useEffect(() => {
       console.log(orderDetails.registration)
         if((orderDetails.order_mode === "STRIPE") && 'url' in PGorder) setMakeC("stripe");//window.location.href = PGorder.url;
+        if(((orderDetails.order_mode === "PHONEPE") && 'url' in PGorder)) setMakeC("phonepe");
+
         const cookies = document.cookie.split("; ");
         let _cid = "";
         cookies.forEach((cookie) => {
           const [key, value] = cookie.split("=");
           if(key === "cid") _cid = value;
         });
-        if(_cid !== "" && orderDetails.order_mode !== "STRIPE"){ 
+        if(_cid !== "" && (orderDetails.order_mode !== "STRIPE" && orderDetails.order_mode !== "PHONEPE")){ 
           setMakeC("pay");
           setCID(_cid);
         }
-        if(orderDetails.registration === "no" && orderDetails.order_mode !== "STRIPE") setMakeC("pay");
+        if(orderDetails.registration === "no" && orderDetails.order_mode !== "STRIPE" && orderDetails.order_mode !== "PHONEPE") setMakeC("pay");
       }, []);
 
       useEffect(()=>{
-        console.log(makec);
+        if(makec === "pay" && orderDetails.order_mode === "RAZORPAY"){
+          invoke_razorpay_payment();
+        }
       }, [makec]);
 
       useEffect(()=> {
         if(status === "success") setMakeC("pay");
-      }, [status])
+      }, [status]);
+
+      const verify_payment = async (order: string, pay: string, sig: string) => {
+        const res = await axios.post("https://karmapay.live/api/v1/payment/verify", {
+          order_id: order,
+          payment_id: pay,
+          signature: sig,
+          RZKey: PGRapi.key,
+          cid: cid,
+          oid: order_id
+        }, {
+          headers: {
+            "Authorization": "Bearer "+orderDetails.kpapi
+          }
+        });
+        if(res.status === 200){
+          if(res.data.data.status === "success"){
+            setStatus("success");
+            toast.success("Payment successful");
+          }
+          else{
+            setStatus("failed");
+            toast.error("Payment failed");
+          }
+          setMakeC("result");
+        }
+        else{
+          toast.error("Could not verify payment");
+        }
+      }
+  
+      const invoke_razorpay_payment = async () => {
+        const res = await loadScript(
+          "https://checkout.razorpay.com/v1/checkout.js"
+        );
+    
+        if (!res) {
+          toast.error("Could not speak to my server. Are you online?");
+          return;
+        }
+        else{
+          const options = {
+          key: PGRapi.key,
+          currency: orderDetails.order_currency,
+          //amount: course_price+"00",
+          amount: orderDetails.order_amt.toString()+"00",
+          order_id: orderDetails.PGorder.id,
+          name: "KarmaPay Payments",
+          description: "KarmaPay Payments",
+          image: "https://noobsverse-internal.s3.ap-south-1.amazonaws.com/karmapay-removebg-preview.png",
+          handler: function (response: any) {
+            // alert(response.razorpay_payment_id);
+            // alert(response.razorpay_order_id);
+            // alert(response.razorpay_signature);
+            //setPayment(response.razorpay_payment_id);
+            //setOrder(response.razorpay_order_id);
+            const sig = response.razorpay_signature;
+            const pay = response.razorpay_payment_id;
+            //console.log("RESPONSE"+sig);
+            verify_payment(orderDetails.PGorder.id, pay, sig);
+          },
+          theme: {
+        color: "#0d4aba",
+      },
+          prefill: {
+            name: fname + lname,
+            email: email,
+            phone_number: phone,
+          },
+        };
+        const paymentObject = new window.Razorpay(options);
+        paymentObject.open();
+        }
+      }
 
     const handleCRegister = async () => {
         if(!lname || !fname || !email || !phone)
@@ -289,7 +371,7 @@ export default function Register({makeC, PGorder, orderDetails}: {makeC: any, PG
             </Box>
             form
           </Stack>
-            ) : makec === "stripe" ? (<Popup url={'url' in PGorder ? PGorder.url : "/"} change_status={status_success} />) : (<Spinner size='xl' thickness="8px"/>)
+            ) : makec === "stripe" || makec === "phonepe" ? (<Popup url={'url' in PGorder ? PGorder.url : "/"} change_status={status_success} />) : (<Spinner size='xl' thickness="8px"/>)
           }
 
         </Container>

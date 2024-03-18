@@ -8,7 +8,7 @@ import {
   Stack
 } from '@chakra-ui/react'
 
-export default function CallToActionWithAnnotation() {
+export default function Home() {
   return (
     <Providers>
       <Container maxW={'3xl'}>
@@ -22,10 +22,10 @@ export default function CallToActionWithAnnotation() {
             fontSize={{  md: '6xl' }}
             lineHeight={'110%'} color={'green.400'}>
            <br />
-            <Text as={'span'} color={'orange.100'}>
+            <Text as={'span'} color={'orange.400'}>
             KarmaPay
             </Text><br />
-            <Text as={'span'} color={'orange.400'}>
+            <Text as={'span'} color={'orange.100'}>
             Payment
             </Text><br />
             <Text as={'span'} color={'green.400'}>
