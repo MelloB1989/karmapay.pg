@@ -44,7 +44,7 @@ import {
     )
   }
 
-  const PaymentProgress = ({amount}: {amount: string})=>{
+  const PaymentProgress = ({amount, status}: {amount: string, status: string})=>{
     return (
         <Center py={12}>
       <Box
@@ -94,7 +94,7 @@ import {
           </Text>
           <Stack direction={'row'} align={'center'}>
             <Text fontWeight={800} fontSize={'xl'}>
-              Total amount: {amount}
+              {status === "success" ? "Payment successful, you can now close this window" : `Total amount: ${amount}`}
             </Text>
           </Stack>
         </Stack>
@@ -125,7 +125,12 @@ export default function Register({makeC, PGorder, orderDetails}: {makeC: any, PG
     const [terms, setTerms] = useState(false);
     const [makec, setMakeC] = useState(makeC ? "make" : "pay");
     const [cid, setCID] = useState("");
+    const [status, setStatus] = useState("");
     const [paymentg, setPaymentG] = useState("");
+
+    const status_success = () => {
+      setStatus("success");
+    }
 
     useEffect(()=>{
         console.log(makec)
@@ -151,6 +156,10 @@ export default function Register({makeC, PGorder, orderDetails}: {makeC: any, PG
       useEffect(()=>{
         console.log(makec);
       }, [makec]);
+
+      useEffect(()=> {
+        if(status === "success") setMakeC("pay");
+      }, [status])
 
     const handleCRegister = async () => {
         if(!lname || !fname || !email || !phone)
@@ -214,7 +223,7 @@ export default function Register({makeC, PGorder, orderDetails}: {makeC: any, PG
           </Stack>
           
           {
-            makec === "pay" ? (<PaymentProgress amount={orderDetails.order_amt.toString()} />) :  makec === "register" ? (
+            makec === "pay" ? (<PaymentProgress amount={orderDetails.order_amt.toString()} status={status} />) :  makec === "register" ? (
                 <Stack
             bg={'gray.50'}
             rounded={'xl'}
@@ -280,7 +289,7 @@ export default function Register({makeC, PGorder, orderDetails}: {makeC: any, PG
             </Box>
             form
           </Stack>
-            ) : makec === "stripe" ? (<Popup url={'url' in PGorder ? PGorder.url : "/"} />) : (<Spinner size='xl' thickness="8px"/>)
+            ) : makec === "stripe" ? (<Popup url={'url' in PGorder ? PGorder.url : "/"} change_status={status_success} />) : (<Spinner size='xl' thickness="8px"/>)
           }
 
         </Container>
