@@ -171,6 +171,7 @@ export default function Register({makeC, PGorder, orderDetails, PGRapi, order_id
       // }, [status]);
 
       const verify_payment = async (order: string, pay: string, sig: string) => {
+        const id = toast.loading("Verifying payment, please do not close the window...");
         const res = await axios.post("https://karmapay.live/api/v1/payment/verify", {
           order_id: order,
           payment_id: pay,
@@ -198,6 +199,7 @@ export default function Register({makeC, PGorder, orderDetails, PGRapi, order_id
         else{
           toast.error("Could not verify payment");
         }
+        toast.dismiss(id);
       }
   
       const invoke_razorpay_payment = async () => {
