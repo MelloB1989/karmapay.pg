@@ -143,7 +143,7 @@ export default function Register({makeC, PGorder, orderDetails, PGRapi, order_id
 
     //Check if cid cookie exists
     useEffect(() => {
-      console.log(orderDetails.registration)
+      console.log(PGRapi)
         if((orderDetails.order_mode === "STRIPE") && 'url' in PGorder) setMakeC("stripe");//window.location.href = PGorder.url;
         if(((orderDetails.order_mode === "PHONEPE") && 'url' in PGorder)) setMakeC("phonepe");
 
@@ -166,9 +166,9 @@ export default function Register({makeC, PGorder, orderDetails, PGRapi, order_id
         }
       }, [makec]);
 
-      useEffect(()=> {
-        if(status === "success") setMakeC("pay");
-      }, [status]);
+      // useEffect(()=> {
+      //   if(status === "success") setMakeC("pay");
+      // }, [status]);
 
       const verify_payment = async (order: string, pay: string, sig: string) => {
         const res = await axios.post("https://karmapay.live/api/v1/payment/verify", {
@@ -186,13 +186,14 @@ export default function Register({makeC, PGorder, orderDetails, PGRapi, order_id
         if(res.status === 200){
           if(res.data.data.status === "success"){
             setStatus("success");
+            setMakeC("success");
             toast.success("Payment successful");
           }
           else{
             setStatus("failed");
             toast.error("Payment failed");
           }
-          setMakeC("result");
+          //setMakeC("result");
         }
         else{
           toast.error("Could not verify payment");
@@ -305,7 +306,7 @@ export default function Register({makeC, PGorder, orderDetails, PGRapi, order_id
           </Stack>
           
           {
-            makec === "pay" ? (<PaymentProgress amount={orderDetails.order_amt.toString()} status={status} />) :  makec === "register" ? (
+            makec === "pay" || makec === "success" ? (<PaymentProgress amount={orderDetails.order_amt.toString()} status={status} />) : makec === "register" ? (
                 <Stack
             bg={'gray.50'}
             rounded={'xl'}
