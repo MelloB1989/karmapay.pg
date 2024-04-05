@@ -5,12 +5,12 @@ import { PhonepeAPI } from '@/app/types';
 export const createPhonepeOrder = async(PGPapi: PhonepeAPI, amount: number, redirect_url: string, subdomain: string, oid: string) => {
     const data = {
         merchantId: PGPapi.merchant_id,
-        merchantTransactionId: oid,
+        merchantTransactionId: oid.substring(0, 35),
         merchantUserId: PGPapi.merchant_user_id,
         amount: amount * 100,
-        redirectUrl: `https://karmapay.live/success?mode=phonepe&oid=${oid}`,
+        redirectUrl: `https://${subdomain}/success`,
         redirectMode: "POST",
-        //callbackUrl: `https://${subdomain}/success?${od}`,
+        callbackUrl: redirect_url,
         //mobileNumber: "9825454588",
         paymentInstrument: {
           type: "PAY_PAGE",
@@ -25,7 +25,7 @@ export const createPhonepeOrder = async(PGPapi: PhonepeAPI, amount: number, redi
     .digest('hex') + `###${PGPapi.salt_index}`;
 
   try {
-    const response = await axios.post('https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay', {
+    const response = await axios.post('https://api.phonepe.com/apis/hermes/pg/v1/pay', {
       request: payloadMain,
     }, {
       headers: {
