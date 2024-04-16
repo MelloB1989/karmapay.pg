@@ -143,7 +143,7 @@ export default function Register({makeC, PGorder, orderDetails, PGRapi, order_id
 
     //Check if cid cookie exists
     useEffect(() => {
-      console.log(PGRapi)
+      console.log("API::::"+orderDetails.order_mode,PGorder)
         if((orderDetails.order_mode === "STRIPE") && 'url' in PGorder) setMakeC("stripe");//window.location.href = PGorder.url;
         if(((orderDetails.order_mode === "PHONEPE") && 'url' in PGorder)) setMakeC("phonepe");
 

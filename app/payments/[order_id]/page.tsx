@@ -72,7 +72,7 @@ export default async function PaymentPage({ params }: PageProps){
             
             case "PHONEPE":
                 let PGPapi: PhonepeAPI = JSON.parse(Buffer.from(orderDetails.api_key.substring(3), 'base64').toString('ascii'));
-                const phonepeOrder = await createPhonepeOrder(PGPapi, orderDetails.order_amt, orderDetails.redirect_url, orderDetails.subdomain, order_id);
+                const phonepeOrder = await createPhonepeOrder(PGPapi, orderDetails.order_amt, orderDetails.webhook_url, orderDetails.subdomain, order_id);
                 //console.log(phonepeOrder);
                 if (phonepeOrder === null){
                     throw new Error(`Error creating Phonepe order for order_id: ${order_id}`);
@@ -80,6 +80,7 @@ export default async function PaymentPage({ params }: PageProps){
                 paymentUrl = phonepeOrder.url;
                 //console.log(paymentUrl);
                 orderDetails.PGorder = {url: phonepeOrder.url};
+                PGorder = {url: phonepeOrder.url};
                 orderDetails.order_status = "CREATED";
                 await client.set(order_id, JSON.stringify(orderDetails));
                 break;

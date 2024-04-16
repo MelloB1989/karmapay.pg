@@ -2,15 +2,15 @@ const axios = require('axios');
 import * as crypto from 'crypto';
 import { PhonepeAPI } from '@/app/types';
 
-export const createPhonepeOrder = async(PGPapi: PhonepeAPI, amount: number, redirect_url: string, subdomain: string, oid: string) => {
+export const createPhonepeOrder = async(PGPapi: PhonepeAPI, amount: number, webhook: string, subdomain: string, oid: string) => {
     const data = {
         merchantId: PGPapi.merchant_id,
         merchantTransactionId: oid.substring(0, 35),
         merchantUserId: PGPapi.merchant_user_id,
         amount: amount * 100,
-        redirectUrl: `https://${subdomain}/success`,
+        redirectUrl: `https://${subdomain}/success/${oid}`,
         redirectMode: "POST",
-        callbackUrl: redirect_url,
+        callbackUrl: webhook,
         //mobileNumber: "9825454588",
         paymentInstrument: {
           type: "PAY_PAGE",
