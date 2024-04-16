@@ -9,7 +9,7 @@ export const createPhonepeOrder = async(PGPapi: PhonepeAPI, amount: number, webh
         merchantUserId: PGPapi.merchant_user_id,
         amount: amount * 100,
         redirectUrl: `https://${subdomain}/success/${oid}`,
-        redirectMode: "POST",
+        redirectMode: "GET",
         callbackUrl: webhook,
         //mobileNumber: "9825454588",
         paymentInstrument: {
