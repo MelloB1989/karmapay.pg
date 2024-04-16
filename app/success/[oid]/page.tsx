@@ -47,13 +47,17 @@ const client = new Redis({
 
 export default async function SuccessPage({ params }: PageProps){
     const { oid } = params;
-    const result: any = await client.get(oid.toString());
-    orderDetails = result;
+    try{
+        const result: any = await client.get(oid.toString());
+        orderDetails = result;
 
-    //Trigger webhook
-    //await axios.post(orderDetails.webhook_url, orderDetails);
-    //Delete order from redis
-    await client.del(oid.toString());
+        //Trigger webhook
+        //await axios.post(orderDetails.webhook_url, orderDetails);
+        //Delete order from redis
+        await client.del(oid.toString());
+    } catch (error) {
+        console.error('Error:', error);
+    }
 
     return (
         <Providers>
