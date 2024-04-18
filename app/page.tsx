@@ -1,3 +1,4 @@
+"use client";
 import { Providers } from '@/provider'
 import {
   Box,
@@ -7,8 +8,15 @@ import {
   Button,
   Stack
 } from '@chakra-ui/react'
+import { useEffect } from 'react';
 
 export default function Home() {
+  useEffect(() => {
+    if(window.location.hostname === 'www.zerokart.life') {
+      console.log('Redirecting to', window.location.href)
+      window.location.href = 'https://zerokart.life/'
+    }
+  }, []);
   return (
     <Providers>
       <Container maxW={'3xl'}>
