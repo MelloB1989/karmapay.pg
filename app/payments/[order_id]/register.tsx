@@ -172,7 +172,7 @@ export default function Register({makeC, PGorder, orderDetails, PGRapi, order_id
 
       const verify_payment = async (order: string, pay: string, sig: string) => {
         const id = toast.loading("Verifying payment, please do not close the window...");
-        const res = await axios.post("https://karmapay.live/api/v1/payment/verify", {
+        const res = await axios.post("https://karmapay-backend.app.k8s.coffeecodes.in/v1/payment/verify", {
           order_id: order,
           payment_id: pay,
           signature: sig,
@@ -197,6 +197,7 @@ export default function Register({makeC, PGorder, orderDetails, PGRapi, order_id
           //setMakeC("result");
         }
         else{
+          toast.dismiss(id);
           toast.error("Could not verify payment");
         }
         toast.dismiss(id);
