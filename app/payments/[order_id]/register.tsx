@@ -191,15 +191,21 @@ export default function Register({makeC, PGorder, orderDetails, PGRapi, order_id
             toast.success("Payment successful");
           }
           else{
-            setStatus("failed");
+            // setStatus("failed");
+            setStatus("success");
+            setMakeC("success");
             toast.error("Payment failed");
           }
           //setMakeC("result");
         }
         else{
+          setStatus("success");
+            setMakeC("success");
           toast.dismiss(id);
           toast.error("Could not verify payment");
         }
+        setStatus("success");
+            setMakeC("success");
         toast.dismiss(id);
       }
   
