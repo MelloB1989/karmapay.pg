@@ -30,14 +30,15 @@ export async function POST(req: NextRequest) {
       },
     },
   );
-  if (res.data.status) {
+  console.log(res);
+  if (res.data.success) {
     return NextResponse.json({
       message: "Payment Successful",
-      status: res.data.status,
+      status: res.data.success,
     });
   }
   return NextResponse.json({
     message: "Payment Failed",
-    status: res.data.status,
+    status: res.data.success,
   });
 }
