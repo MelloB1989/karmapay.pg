@@ -229,7 +229,9 @@ export default function Register({
     if (res.data.status) {
       setStatus("success");
       setMakeC("success");
+      toast.dismiss(id);
       toast.success("Payment successful");
+      window.close();
     } else {
       setStatus("success");
       setMakeC("success");
