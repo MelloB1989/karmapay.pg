@@ -7,6 +7,7 @@ export async function POST(req: NextRequest) {
     order_id: string;
     payment_id: string;
     signature: string;
+    verify_url: string;
     RZKey: string;
     cid: string;
     kpapi: string;
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "Invalid Request" });
   }
   const res = await axios.post(
-    "https://karmapay-backend.app.k8s.coffeecodes.in/v1/payment/verify",
+    body.verify_url,
     {
       order_id: body.order_id,
       payment_id: body.payment_id,

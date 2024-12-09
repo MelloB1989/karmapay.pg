@@ -91,7 +91,7 @@ const PaymentProgress = ({
             pos: "absolute",
             top: 5,
             left: 0,
-            backgroundImage: `url(https://noobsverse-internal.s3.ap-south-1.amazonaws.com/karmapay-removebg-preview.png)`,
+            backgroundImage: `url(https://noobsverse-cdn-public.s3.ap-south-1.amazonaws.com/karmapay-removebg-preview.png)`,
             filter: "blur(15px)",
             zIndex: -1,
           }}
@@ -107,7 +107,7 @@ const PaymentProgress = ({
             width={282}
             objectFit={"cover"}
             src={
-              "https://noobsverse-internal.s3.ap-south-1.amazonaws.com/karmapay-removebg-preview.png"
+              "https://noobsverse-cdn-public.s3.ap-south-1.amazonaws.com/karmapay-removebg-preview.png"
             }
             alt="#"
           />
@@ -222,6 +222,7 @@ export default function Register({
       payment_id: pay,
       signature: sig,
       RZKey: PGRapi.key,
+      verify_url: orderDetails.verify_url,
       cid: cid,
       oid: order_id,
       kpapi: orderDetails.kpapi,
@@ -281,7 +282,7 @@ export default function Register({
         name: "KarmaPay Payments",
         description: "KarmaPay Payments",
         image:
-          "https://noobsverse-internal.s3.ap-south-1.amazonaws.com/karmapay-removebg-preview.png",
+          "https://noobsverse-cdn-public.s3.ap-south-1.amazonaws.com/karmapay-removebg-preview.png",
         handler: function (response: any) {
           // alert(response.razorpay_payment_id);
           // alert(response.razorpay_order_id);
